@@ -28,7 +28,6 @@
         lon: position.coords.longitude
       };
 
-      console.log('coords', coords);
       // Fetch weather data
       await fetchWeatherData();
     } catch (err) {

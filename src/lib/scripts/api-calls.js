@@ -119,19 +119,11 @@ export function getWeatherImage(weatherMain, weatherIcon, currentTime, sunrise, 
   const isNightBySun = now < sunrise || now > sunset;
   const isNight = isAfter6PM || isNightBySun;
 
-  console.log('Weather Image Debug:', {
-    currentHour,
-    isAfter6PM,
-    isNightBySun,
-    isNight,
-    weatherMain: weatherMain.toLowerCase()
-  });
-
   switch (weatherMain.toLowerCase()) {
     case 'clear':
-      return isNight ? '/assets/icons/full-moon.png' : '/assets/icons/sun.png';
+      return isNight ? '/assets/icons/clear-night-sky.png' : '/assets/icons/sun.png';
     case 'clouds':
-      return '/assets/icons/cloudy.png';
+      return isNight ? '/assets/icons/cloudy-night.png' : '/assets/icons/cloudy-day.png';
     case 'rain':
       return '/assets/icons/heavy-rain.png';
     case 'drizzle':
@@ -143,9 +135,9 @@ export function getWeatherImage(weatherMain, weatherIcon, currentTime, sunrise, 
     case 'mist':
     case 'fog':
     case 'haze':
-      return '/assets/icons/cloudy.png';
+      return '/assets/icons/snow.png';
     default:
-      return isNight ? '/assets/icons/full-moon.png' : '/assets/icons/sun.png';
+      return isNight ? '/assets/icons/half-moon.png' : '/assets/icons/sun.png';
   }
 }
 
@@ -159,13 +151,18 @@ export function getWeatherImage(weatherMain, weatherIcon, currentTime, sunrise, 
  * @returns {string} - Icon name for iconStore
  */
 export function getWeatherIcon(weatherMain, weatherIcon, currentTime, sunrise, sunset) {
-  const isNight = currentTime < sunrise || currentTime > sunset;
-  const hour = new Date(currentTime * 1000).getHours();
-  const isEvening = hour >= 18; // 6 PM or later
+  // Use current time if not provided
+  const now = currentTime || Math.floor(Date.now() / 1000);
+  const currentHour = new Date().getHours(); // Use actual current time for hour check
+
+  // Check if it's night time (after 6 PM or before sunrise/after sunset)
+  const isAfter6PM = currentHour >= 18; // 6 PM or later
+  const isNightBySun = now < sunrise || now > sunset;
+  const isNight = isAfter6PM || isNightBySun;
 
   switch (weatherMain.toLowerCase()) {
     case 'clear':
-      return isNight || isEvening ? 'moon' : 'sun';
+      return isNight ? 'moon' : 'sun';
     case 'clouds':
       return 'cloudy';
     case 'rain':
@@ -180,7 +177,7 @@ export function getWeatherIcon(weatherMain, weatherIcon, currentTime, sunrise, s
     case 'haze':
       return 'cloudy';
     default:
-      return isNight || isEvening ? 'moon' : 'sun';
+      return isNight ? 'moon' : 'sun';
   }
 }
 

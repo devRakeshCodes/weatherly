@@ -24,6 +24,9 @@
   let loading = $state(false);
   let error = $state(null);
   let activeTab = $state('current');
+  let currentTime = $state(new Date());
+  let historyPage = $state(0);
+  const historyPerPage = 6;
 
   onMount(async () => {
     session = getCurrentSession();
@@ -37,8 +40,18 @@
     // Load weather history
     weatherHistory = getWeatherHistory();
 
+    // Update current time every minute
+    const timeInterval = setInterval(() => {
+      currentTime = new Date();
+    }, 60000);
+
     // Fetch current weather
     await fetchCurrentWeather();
+
+    // Cleanup interval on component destroy
+    return () => {
+      clearInterval(timeInterval);
+    };
   });
 
   async function fetchCurrentWeather() {
@@ -131,6 +144,36 @@
       hour12: true
     });
   }
+
+  function formatCurrentTime() {
+    return currentTime.toLocaleString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  // Pagination for weather history
+  let paginatedHistory = $derived(
+    weatherHistory.slice(historyPage * historyPerPage, (historyPage + 1) * historyPerPage)
+  );
+
+  let totalPages = $derived(Math.ceil(weatherHistory.length / historyPerPage));
+
+  function nextPage() {
+    if (historyPage < totalPages - 1) {
+      historyPage++;
+    }
+  }
+
+  function prevPage() {
+    if (historyPage > 0) {
+      historyPage--;
+    }
+  }
 </script>
 
 <!-- Background with dynamic weather image -->
@@ -140,19 +183,19 @@
     {#if currentWeather}
       <div
         class="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
-        style="background-image: url('/assets/images/weather-bg{currentWeather.weather[0].main.toLowerCase() ===
+        style="background-image: url('/assets/images/{currentWeather.weather[0].main.toLowerCase() ===
         'clear'
-          ? '1'
+          ? 'day-clear'
           : currentWeather.weather[0].main.toLowerCase() === 'rain'
-            ? '3'
-            : '2'}.jpg')"
+            ? 'day-rain'
+            : 'day-cloude'}.jpg')"
         in:fade={{ duration: 800 }}
       ></div>
       <div class="absolute inset-0 bg-black/30"></div>
     {:else}
       <div
         class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style="background-image: url('/assets/images/weather-bg1.jpg')"
+        style="background-image: url('/assets/images/day-clear.jpg')"
       ></div>
       <div class="absolute inset-0 bg-black/40"></div>
     {/if}
@@ -167,21 +210,25 @@
     <!-- Header -->
     <div class="relative z-10 mx-auto max-w-6xl p-4">
       <div
-        class="mb-8 flex flex-col items-center justify-between rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-sm lg:flex-row"
+        class="mb-8 flex flex-col items-center justify-between gap-2.5 rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-sm lg:flex-row"
         in:fly={{ y: -30, duration: 600, delay: 200 }}
       >
         <div class="space-y-1">
-          <div class="flex items-center space-x-3">
+          <div class="flex flex-col items-center space-x-3 lg:flex-row">
             <div
-              class="flex h-12 w-12 animate-pulse items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-purple-500 shadow-lg"
+              class="flex h-12 w-12 animate-pulse items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-purple-500 p-1 shadow-lg"
             >
-              <span class="text-xl font-bold text-white">W</span>
+              <img src="/assets/logos/app-logo.png" alt="Weather app logo" />
             </div>
             <div>
               <h1 class="font-manrope text-3xl font-bold text-white drop-shadow-lg">
                 Welcome back, {session.name}!
               </h1>
               <p class="text-lg text-white/80">Your personal weather dashboard</p>
+              <p class="mt-1 text-sm text-white/60">
+                <Icon name="clock" class="mr-1 inline h-4 w-4" />
+                {formatCurrentTime()}
+              </p>
             </div>
           </div>
         </div>
@@ -216,14 +263,14 @@
           >
             <Tabs.Trigger
               value="current"
-              class="rounded-lg text-base font-medium text-white transition-all duration-300 hover:bg-white/10 data-[state=active]:bg-white/20 data-[state=active]:text-white"
+              class="rounded-lg text-base font-medium text-white transition-all duration-300 hover:bg-white/30 data-[state=active]:bg-white/40 data-[state=active]:text-black"
             >
               <Icon name="cloud-sun" class="mr-2 h-4 w-4" />
               Current Weather
             </Tabs.Trigger>
             <Tabs.Trigger
               value="history"
-              class="rounded-lg text-base font-medium text-white transition-all duration-300 hover:bg-white/10 data-[state=active]:bg-white/20 data-[state=active]:text-white"
+              class="rounded-lg text-base font-medium text-white transition-all duration-300 hover:bg-white/30 data-[state=active]:bg-white/40 data-[state=active]:text-black"
             >
               <Icon name="clock" class="mr-2 h-4 w-4" />
               Weather History
@@ -334,7 +381,15 @@
                             in:fly={{ x: -20, duration: 500, delay: 800 }}
                           >
                             <div class="mb-2 flex items-center space-x-2">
-                              <Icon name="thermometer" class="h-4 w-4 text-blue-300" />
+                              <!-- Show thermometer dynamically -->
+                              {#if currentWeather.main.feels_like < 10}
+                                <Icon name="thermometer-cool" class="h-4 w-4 text-blue-300" />
+                              {:else if currentWeather.main.feels_like >= 10 && currentWeather.main.feels_like <= 20}
+                                <Icon name="thermometer" class="h-4 w-4 text-blue-200" />
+                              {:else if currentWeather.main.feels_like > 20}
+                                <Icon name="thermometer-hot" class="h-4 w-4 text-orange-200" />
+                              {/if}
+
                               <p class="text-sm opacity-80">Feels like</p>
                             </div>
                             <p class="text-2xl font-bold drop-shadow">
@@ -445,85 +500,141 @@
           <Tabs.Content value="history" class="space-y-6">
             {#if weatherHistory.length === 0}
               <div in:fade>
-                <Card.Root class="border-slate-200">
+                <Card.Root class="border border-white/20 bg-white/10 backdrop-blur-sm">
                   <Card.Content class="pt-6">
                     <div class="space-y-4 py-12 text-center">
-                      <div class="text-6xl text-slate-400">📊</div>
-                      <h3 class="text-xl font-semibold text-slate-700">No Weather History</h3>
-                      <p class="text-slate-500">Your weather search history will appear here</p>
-                      <Button onclick={fetchCurrentWeather} class="mt-4">Get Current Weather</Button
+                      <div class="text-6xl">📊</div>
+                      <h3 class="text-xl font-semibold text-white drop-shadow">
+                        No Weather History
+                      </h3>
+                      <p class="text-white/80">Your weather search history will appear here</p>
+                      <Button
+                        onclick={fetchCurrentWeather}
+                        class="mt-4 bg-blue-500 text-white hover:bg-blue-600"
                       >
+                        Get Current Weather
+                      </Button>
                     </div>
                   </Card.Content>
                 </Card.Root>
               </div>
             {:else}
-              <div class="grid gap-4">
-                {#each weatherHistory as weather, index (weather.id)}
-                  <div
-                    in:fly={{ y: 20, duration: 300, delay: index * 50 }}
-                    class="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card"
-                  >
-                    <Card.Root
-                      class="border border-white/20 bg-white/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-white/30 hover:bg-white/20 hover:shadow-xl"
-                    >
-                      <Card.Content class="pt-6">
-                        <div class="flex items-center justify-between">
-                          <div class="flex items-center space-x-4">
-                            <div
-                              class="rounded-full border border-white/20 bg-white/10 p-3 backdrop-blur-sm"
-                            >
-                              <img
-                                src={getWeatherImage(
-                                  weather.description,
-                                  weather.icon,
-                                  Date.now() / 1000,
-                                  0,
-                                  0
-                                )}
-                                alt={weather.description}
-                                class="h-8 w-8"
-                              />
+              <!-- Weather History Grid with Pagination -->
+              <div class="space-y-6">
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {#each paginatedHistory as weather, index (weather.id)}
+                    <div in:fly={{ y: 20, duration: 300, delay: index * 100 }}>
+                      <Card.Root
+                        class="border border-white/20 bg-white/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-white/30 hover:bg-white/20 hover:shadow-xl"
+                      >
+                        <Card.Content class="p-6">
+                          <div class="space-y-4">
+                            <!-- Weather Icon and Location -->
+                            <div class="flex items-center space-x-3">
+                              <div
+                                class="rounded-full border border-white/20 bg-white/10 p-2 backdrop-blur-sm"
+                              >
+                                <img
+                                  src={getWeatherImage(
+                                    weather.description,
+                                    weather.icon,
+                                    Date.now() / 1000,
+                                    0,
+                                    0
+                                  )}
+                                  alt={weather.description}
+                                  class="h-8 w-8"
+                                />
+                              </div>
+                              <div class="flex-1">
+                                <h4 class="font-semibold text-white drop-shadow">
+                                  {weather.location}
+                                </h4>
+                                <p class="text-sm text-white/60">
+                                  {formatHistoryTime(weather.timestamp)}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h4 class="font-semibold text-white drop-shadow">
-                                {weather.location}
-                              </h4>
-                              <p class="text-sm text-white/80 capitalize">{weather.description}</p>
-                              <p class="text-xs text-white/60">
-                                {formatHistoryTime(weather.timestamp)}
-                              </p>
-                            </div>
-                          </div>
-                          <div class="space-y-1 text-right">
-                            <p class="text-2xl font-bold text-white drop-shadow">
-                              {Math.round(weather.temperature)}°C
-                            </p>
-                            <div class="flex space-x-4 text-xs text-white/60">
-                              <span class="flex items-center">
-                                <Icon name="droplets" class="mr-1 h-3 w-3" />
-                                {weather.humidity}%
-                              </span>
-                              <span class="flex items-center">
-                                <Icon name="wind" class="mr-1 h-3 w-3" />
-                                {weather.windSpeed}m/s
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </Card.Content>
-                    </Card.Root>
-                  </div>
-                {/each}
-              </div>
 
-              {#if weatherHistory.length > 0}
-                <div class="pt-4 text-center">
-                  <p class="text-sm text-slate-500">
-                    Showing {weatherHistory.length} recent weather searches
+                            <!-- Temperature and Description -->
+                            <div class="text-center">
+                              <p class="text-3xl font-bold text-white drop-shadow">
+                                {Math.round(weather.temperature)}°C
+                              </p>
+                              <p class="text-sm text-white/80 capitalize">{weather.description}</p>
+                            </div>
+
+                            <!-- Weather Details -->
+                            <div class="grid grid-cols-2 gap-3 text-xs">
+                              <div
+                                class="flex items-center justify-center space-x-1 rounded-lg bg-white/10 p-2"
+                              >
+                                <Icon name="droplets" class="h-3 w-3 text-blue-300" />
+                                <span class="text-white/80">{weather.humidity}%</span>
+                              </div>
+                              <div
+                                class="flex items-center justify-center space-x-1 rounded-lg bg-white/10 p-2"
+                              >
+                                <Icon name="wind" class="h-3 w-3 text-blue-300" />
+                                <span class="text-white/80">{weather.windSpeed}m/s</span>
+                              </div>
+                            </div>
+                          </div>
+                        </Card.Content>
+                      </Card.Root>
+                    </div>
+                  {/each}
+                </div>
+
+                <!-- Pagination Controls -->
+                {#if totalPages > 1}
+                  <div class="flex items-center justify-center space-x-4" in:fade={{ delay: 400 }}>
+                    <Button
+                      onclick={prevPage}
+                      disabled={historyPage === 0}
+                      class="border-white/30 bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-50"
+                      size="sm"
+                    >
+                      <Icon name="chevron-left" class="mr-1 h-4 w-4" />
+                      Previous
+                    </Button>
+
+                    <div class="flex items-center space-x-2">
+                      {#each Array(totalPages) as _, pageIndex}
+                        <button
+                          onclick={() => (historyPage = pageIndex)}
+                          class="h-8 w-8 rounded-full text-sm font-medium transition-all duration-200 {historyPage ===
+                          pageIndex
+                            ? 'border border-white/50 bg-white/30 text-white'
+                            : 'bg-white/10 text-white/70 hover:bg-white/20'}"
+                        >
+                          {pageIndex + 1}
+                        </button>
+                      {/each}
+                    </div>
+
+                    <Button
+                      onclick={nextPage}
+                      disabled={historyPage === totalPages - 1}
+                      class="border-white/30 bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-50"
+                      size="sm"
+                    >
+                      Next
+                      <Icon name="chevron-right" class="ml-1 h-4 w-4" />
+                    </Button>
+                  </div>
+                {/if}
+
+                <!-- History Summary -->
+                <div class="text-center">
+                  <p class="text-sm text-white/60">
+                    Showing {paginatedHistory.length} of {weatherHistory.length} weather searches
+                    {#if totalPages > 1}
+                      • Page {historyPage + 1} of {totalPages}
+                    {/if}
                   </p>
                 </div>
-              {/if}
+              </div>
             {/if}
           </Tabs.Content>
         </Tabs.Root>

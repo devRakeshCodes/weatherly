@@ -124,7 +124,7 @@
       </form>
       <div class="relative hidden bg-muted md:block">
         <img
-          src="/assets/images/weather-bg2.jpg"
+          src="/assets/images/auth-image.jpg"
           alt="placeholder"
           class="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />

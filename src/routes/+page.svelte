@@ -22,7 +22,7 @@
   <div class="absolute inset-0 z-0">
     <div
       class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style="background-image: url('/assets/images/weather-bg1.jpg')"
+      style="background-image: url('/assets/images/day-clear.jpg')"
     ></div>
     <div class="absolute inset-0 bg-black/40"></div>
     <div
