@@ -342,7 +342,6 @@
                         >
                           Try Again
                         </Button>
-                        <Button href="/test" variant="outline">Test Location</Button>
                       </div>
                     </div>
                   </Card.Content>
