@@ -15,7 +15,7 @@
   }
 </script>
 
-<div class="flex h-full w-full flex-col items-center justify-center gap-8 p-4">
+<div class="bg- flex h-full w-full flex-col items-center justify-center gap-8 p-4">
   <h1 class="font-manrope text-center text-4xl font-bold">Welcome to Weatherly!</h1>
   <p class="text-center text-lg text-muted-foreground">Your personal weather companion</p>
 
