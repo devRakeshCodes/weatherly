@@ -67,7 +67,7 @@ describe('Dashboard Functions', () => {
       };
 
       localStorageMock.setItem('weatherHistory', JSON.stringify([weatherData]));
-      
+
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'weatherHistory',
         JSON.stringify([weatherData])
@@ -119,7 +119,7 @@ describe('Dashboard Functions', () => {
   describe('Time Formatting', () => {
     it('should format current time correctly', () => {
       const testDate = new Date('2024-01-08T12:47:00');
-      
+
       const formatted = testDate.toLocaleString('en-US', {
         weekday: 'long',
         month: 'long',
@@ -138,7 +138,7 @@ describe('Dashboard Functions', () => {
 
     it('should handle different time formats', () => {
       const morningDate = new Date('2024-01-08T08:30:00');
-      
+
       const formatted = morningDate.toLocaleString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
@@ -200,11 +200,11 @@ describe('Dashboard Functions', () => {
     });
 
     it('should handle geolocation errors', () => {
-      const geoError = { 
-        code: 1, 
-        message: 'User denied geolocation' 
+      const geoError = {
+        code: 1,
+        message: 'User denied geolocation'
       };
-      
+
       expect(geoError.code).toBe(1);
       expect(geoError.message).toBe('User denied geolocation');
     });
@@ -218,10 +218,12 @@ describe('Dashboard Functions', () => {
           temp: 28,
           humidity: 65
         },
-        weather: [{
-          main: 'Clear',
-          description: 'clear sky'
-        }]
+        weather: [
+          {
+            main: 'Clear',
+            description: 'clear sky'
+          }
+        ]
       };
 
       expect(validWeatherData).toHaveProperty('name');
@@ -249,7 +251,7 @@ describe('Dashboard Functions', () => {
     it('should generate unique IDs', () => {
       const id1 = Date.now().toString();
       const id2 = (Date.now() + 1).toString();
-      
+
       expect(id1).not.toBe(id2);
       expect(typeof id1).toBe('string');
     });
@@ -257,14 +259,14 @@ describe('Dashboard Functions', () => {
     it('should format temperature', () => {
       const temp = 28.5;
       const formatted = `${Math.round(temp)}°C`;
-      
+
       expect(formatted).toBe('29°C');
     });
 
     it('should capitalize strings', () => {
       const text = 'clear sky';
       const capitalized = text.charAt(0).toUpperCase() + text.slice(1);
-      
+
       expect(capitalized).toBe('Clear sky');
     });
   });
