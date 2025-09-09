@@ -101,7 +101,56 @@ export async function getWeatherForecast(lat, lon) {
 }
 
 /**
- * Get weather icon based on weather condition and time
+ * Get weather image based on weather condition and time
+ * @param {string} weatherMain - Main weather condition
+ * @param {string} weatherIcon - Weather icon code from API
+ * @param {number} currentTime - Current timestamp
+ * @param {number} sunrise - Sunrise timestamp
+ * @param {number} sunset - Sunset timestamp
+ * @returns {string} - Image path for weather icons
+ */
+export function getWeatherImage(weatherMain, weatherIcon, currentTime, sunrise, sunset) {
+  // Use current time if not provided
+  const now = currentTime || Math.floor(Date.now() / 1000);
+  const currentHour = new Date().getHours(); // Use actual current time for hour check
+
+  // Check if it's night time (after 6 PM or before sunrise/after sunset)
+  const isAfter6PM = currentHour >= 18; // 6 PM or later
+  const isNightBySun = now < sunrise || now > sunset;
+  const isNight = isAfter6PM || isNightBySun;
+
+  console.log('Weather Image Debug:', {
+    currentHour,
+    isAfter6PM,
+    isNightBySun,
+    isNight,
+    weatherMain: weatherMain.toLowerCase()
+  });
+
+  switch (weatherMain.toLowerCase()) {
+    case 'clear':
+      return isNight ? '/assets/icons/full-moon.png' : '/assets/icons/sun.png';
+    case 'clouds':
+      return '/assets/icons/cloudy.png';
+    case 'rain':
+      return '/assets/icons/heavy-rain.png';
+    case 'drizzle':
+      return '/assets/icons/cloud-sun-rain.png';
+    case 'thunderstorm':
+      return '/assets/icons/storm.png';
+    case 'snow':
+      return '/assets/icons/snow.png';
+    case 'mist':
+    case 'fog':
+    case 'haze':
+      return '/assets/icons/cloudy.png';
+    default:
+      return isNight ? '/assets/icons/full-moon.png' : '/assets/icons/sun.png';
+  }
+}
+
+/**
+ * Get weather icon for small displays (using icon store)
  * @param {string} weatherMain - Main weather condition
  * @param {string} weatherIcon - Weather icon code from API
  * @param {number} currentTime - Current timestamp
