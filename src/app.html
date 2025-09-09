@@ -3,9 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- <link rel="icon" href="%sveltekit.assets%/rs-icon.webp" /> -->
+    <link href="https://fonts.googleapis.com/css?family=Manrope" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Space Grotesk" rel="stylesheet" />
     %sveltekit.head%
   </head>
-  <body data-sveltekit-preload-data="hover">
-    <div style="display: contents">%sveltekit.body%</div>
+  <body
+    data-sveltekit-preload-data="hover"
+    class="h-screen w-screen overflow-x-hidden"
+    style="font-family: 'Manrope', 'Space Grotesk', sans-serif"
+  >
+    <div class="contents h-full w-full bg-white">%sveltekit.body%</div>
   </body>
 </html>
