@@ -5,7 +5,7 @@
   import { Button } from '$lib/components/ui/button/index.js';
   import { cn } from '$lib/utils.js';
   import IndieSeprator from '../ui/separator/indie-seprator.svelte';
-  import { generateResetToken } from '$lib/auth.js';
+  import { generateResetToken } from '$lib/scripts/auth.js';
 
   let { class: className, ...restProps } = $props();
   const id = crypto.randomUUID();

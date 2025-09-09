@@ -5,7 +5,7 @@
   import { Button } from '$lib/components/ui/button/index.js';
   import { cn } from '$lib/utils.js';
   import IndieSeprator from '../ui/separator/indie-seprator.svelte';
-  import { resetPassword } from '$lib/auth.js';
+  import { resetPassword } from '$lib/scripts/auth.js';
   import { goto } from '$app/navigation';
 
   let { class: className, token = '', ...restProps } = $props();
