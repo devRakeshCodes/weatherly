@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import { PUBLIC_WEATHER_API_KEY } from '$env/static/public';
 
 const API_BASE_URL = 'https://api.openweathermap.org/data/2.5';
-const API_KEY = PUBLIC_WEATHER_API_KEY || 'c2f066a304d81e8825b4cd66d6522777';
+const API_KEY = PUBLIC_WEATHER_API_KEY || '';
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url }) {

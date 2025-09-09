@@ -3,6 +3,7 @@
   import * as Tabs from '$lib/components/ui/tabs/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import Icon from '$lib/components/ui/icon/icon.svelte';
+  import ConfirmationDialog from '$lib/components/ui/confirmation-dialog/ConfirmationDialog.svelte';
   import { getCurrentSession, logout } from '$lib/scripts/auth.js';
   import {
     getCurrentLocation,
@@ -27,6 +28,7 @@
   let currentTime = $state(new Date());
   let historyPage = $state(0);
   const historyPerPage = 6;
+  let showLogoutConfirm = $state(false);
 
   onMount(async () => {
     session = getCurrentSession();
@@ -114,6 +116,10 @@
   }
 
   function handleLogout() {
+    showLogoutConfirm = true;
+  }
+
+  function confirmLogout() {
     logout();
     goto('/login');
   }
@@ -649,6 +655,17 @@
     </div>
   {/if}
 </div>
+
+<!-- Logout Confirmation Dialog -->
+<ConfirmationDialog
+  bind:open={showLogoutConfirm}
+  title="Logout Confirmation"
+  message="Are you sure you want to logout? You'll need to sign in again to access your weather dashboard."
+  confirmText="Yes, Logout"
+  cancelText="Cancel"
+  variant="destructive"
+  onConfirm={confirmLogout}
+/>
 
 <style>
   /* Custom animations for smooth transitions */
