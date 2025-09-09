@@ -1,16 +1,22 @@
 <script>
   import { Button } from '$lib/components/ui/button/index.js';
+  import ConfirmationDialog from '$lib/components/ui/confirmation-dialog/ConfirmationDialog.svelte';
   import { getCurrentSession, logout } from '$lib/scripts/auth.js';
   import { onMount } from 'svelte';
   import { fly, fade } from 'svelte/transition';
 
   let session = $state(null);
+  let showLogoutConfirm = $state(false);
 
   onMount(() => {
     session = getCurrentSession();
   });
 
   function handleLogout() {
+    showLogoutConfirm = true;
+  }
+
+  function confirmLogout() {
     logout();
     session = null;
   }
@@ -93,3 +99,14 @@
     {/if}
   </div>
 </div>
+
+<!-- Logout Confirmation Dialog -->
+<ConfirmationDialog
+  bind:open={showLogoutConfirm}
+  title="Logout Confirmation"
+  message="Are you sure you want to logout? You'll be redirected to the home page."
+  confirmText="Yes, Logout"
+  cancelText="Cancel"
+  variant="destructive"
+  onConfirm={confirmLogout}
+/>
