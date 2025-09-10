@@ -180,6 +180,48 @@
       historyPage--;
     }
   }
+
+  // Smart pagination with ellipsis
+  let paginationItems = $derived(() => {
+    const current = historyPage + 1; // Convert to 1-based
+    const total = totalPages;
+    const items = [];
+
+    if (total <= 7) {
+      // Show all pages if 7 or fewer
+      for (let i = 1; i <= total; i++) {
+        items.push({ type: 'page', value: i });
+      }
+    } else {
+      // Always show first page
+      items.push({ type: 'page', value: 1 });
+
+      if (current <= 4) {
+        // Current page is near the beginning
+        for (let i = 2; i <= 5; i++) {
+          items.push({ type: 'page', value: i });
+        }
+        items.push({ type: 'ellipsis' });
+        items.push({ type: 'page', value: total });
+      } else if (current >= total - 3) {
+        // Current page is near the end
+        items.push({ type: 'ellipsis' });
+        for (let i = total - 4; i <= total; i++) {
+          items.push({ type: 'page', value: i });
+        }
+      } else {
+        // Current page is in the middle
+        items.push({ type: 'ellipsis' });
+        for (let i = current - 1; i <= current + 1; i++) {
+          items.push({ type: 'page', value: i });
+        }
+        items.push({ type: 'ellipsis' });
+        items.push({ type: 'page', value: total });
+      }
+    }
+
+    return items;
+  });
 </script>
 
 <!-- Background with dynamic weather image -->
@@ -543,9 +585,9 @@
                                   src={getWeatherImage(
                                     weather.description,
                                     weather.icon,
-                                    Date.now() / 1000,
-                                    0,
-                                    0
+                                    weather.timestamp,
+                                    weather.sunrise,
+                                    weather.sunset
                                   )}
                                   alt={weather.description}
                                   class="h-8 w-8"
@@ -605,16 +647,22 @@
                     </Button>
 
                     <div class="flex items-center space-x-2">
-                      {#each Array(totalPages) as _, pageIndex}
-                        <button
-                          onclick={() => (historyPage = pageIndex)}
-                          class="h-8 w-8 rounded-full text-sm font-medium transition-all duration-200 {historyPage ===
-                          pageIndex
-                            ? 'border border-white/50 bg-white/30 text-white'
-                            : 'bg-white/10 text-white/70 hover:bg-white/20'}"
-                        >
-                          {pageIndex + 1}
-                        </button>
+                      {#each paginationItems as item}
+                        {#if item.type === 'page'}
+                          <button
+                            onclick={() => (historyPage = item.value - 1)}
+                            class="h-8 w-8 rounded-full text-sm font-medium transition-all duration-200 {historyPage ===
+                            item.value - 1
+                              ? 'border border-white/50 bg-white/30 text-white'
+                              : 'bg-white/10 text-white/70 hover:bg-white/20'}"
+                          >
+                            {item.value}
+                          </button>
+                        {:else if item.type === 'ellipsis'}
+                          <div class="flex h-8 w-8 items-center justify-center text-white/50">
+                            <Icon name="ellipsis" class="h-4 w-4" />
+                          </div>
+                        {/if}
                       {/each}
                     </div>
 

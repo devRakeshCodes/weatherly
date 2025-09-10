@@ -109,14 +109,21 @@ export async function getWeatherForecast(lat, lon) {
  * @param {number} sunset - Sunset timestamp
  * @returns {string} - Image path for weather icons
  */
+
+function normalizeToSeconds(ts) {
+  if (!ts) return Math.floor(Date.now() / 1000); // fallback
+  return ts > 1e12 ? Math.floor(ts / 1000) : ts; // ms → s, else already s
+}
+
 export function getWeatherImage(weatherMain, weatherIcon, currentTime, sunrise, sunset) {
   // Use current time if not provided
-  const now = currentTime || Math.floor(Date.now() / 1000);
-  const currentHour = new Date().getHours(); // Use actual current time for hour check
+  const now = normalizeToSeconds(currentTime);
+
+  const currentHour = new Date(now * 1000).getHours();
 
   // Check if it's night time (after 6 PM or before sunrise/after sunset)
-  const isAfter6PM = currentHour >= 18; // 6 PM or later
-  const isNightBySun = now < sunrise || now > sunset;
+  const isAfter6PM = currentHour >= 18; // local time
+  const isNightBySun = now < sunrise || now > sunset; // sunrise/sunset in seconds (UTC)
   const isNight = isAfter6PM || isNightBySun;
 
   switch (weatherMain.toLowerCase()) {
@@ -152,12 +159,13 @@ export function getWeatherImage(weatherMain, weatherIcon, currentTime, sunrise, 
  */
 export function getWeatherIcon(weatherMain, weatherIcon, currentTime, sunrise, sunset) {
   // Use current time if not provided
-  const now = currentTime || Math.floor(Date.now() / 1000);
-  const currentHour = new Date().getHours(); // Use actual current time for hour check
+  const now = normalizeToSeconds(currentTime);
+
+  const currentHour = new Date(now * 1000).getHours();
 
   // Check if it's night time (after 6 PM or before sunrise/after sunset)
-  const isAfter6PM = currentHour >= 18; // 6 PM or later
-  const isNightBySun = now < sunrise || now > sunset;
+  const isAfter6PM = currentHour >= 18; // local time
+  const isNightBySun = now < sunrise || now > sunset; // sunrise/sunset in seconds (UTC)
   const isNight = isAfter6PM || isNightBySun;
 
   switch (weatherMain.toLowerCase()) {
@@ -211,7 +219,9 @@ export function storeWeatherHistory(weatherData) {
       description: weatherData.weather[0].description,
       icon: weatherData.weather[0].icon,
       humidity: weatherData.main.humidity,
-      windSpeed: weatherData.wind.speed
+      windSpeed: weatherData.wind.speed,
+      sunrise: weatherData.sys.sunrise,
+      sunset: weatherData.sys.sunset
     };
 
     // Keep only last 50 entries
