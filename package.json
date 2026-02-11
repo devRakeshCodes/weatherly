@@ -30,6 +30,7 @@
     "@tailwindcss/vite": "^4.1.13",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/svelte": "^5.2.8",
+    "@vite-pwa/sveltekit": "^1.1.0",
     "autoprefixer": "^10.4.20",
     "bits-ui": "^2.9.6",
     "clsx": "^2.1.1",
