@@ -53,6 +53,21 @@ A weather application built with Svelte 5, SvelteKit, shadCN and Tailwind CSS. F
 
    Application runs at `http://localhost:5173`
 
+---
+
+## Progressive Web App
+
+The application is installable as a Progressive Web App:
+
+- Web manifest configured
+- Service worker registered
+- App shell cached
+- Standalone mobile experience
+
+This improves perceived performance and provides an app-like experience on supported devices.
+
+---
+
 ## Technology Stack
 
 - **Frontend**: Svelte 5, SvelteKit, Tailwind CSS
