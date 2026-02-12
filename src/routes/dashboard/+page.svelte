@@ -225,34 +225,7 @@
 </script>
 
 <!-- Background with dynamic weather image -->
-<div class="relative min-h-screen overflow-hidden">
-  <!-- Dynamic Background -->
-  <div class="absolute inset-0 z-0">
-    {#if currentWeather}
-      <div
-        class="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
-        style="background-image: url('/assets/images/{currentWeather.weather[0].main.toLowerCase() ===
-        'clear'
-          ? 'day-clear'
-          : currentWeather.weather[0].main.toLowerCase() === 'rain'
-            ? 'day-rain'
-            : 'day-cloude'}.jpg')"
-        in:fade={{ duration: 800 }}
-      ></div>
-      <div class="absolute inset-0 bg-black/30"></div>
-    {:else}
-      <div
-        class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style="background-image: url('/assets/images/day-clear.jpg')"
-      ></div>
-      <div class="absolute inset-0 bg-black/40"></div>
-    {/if}
-
-    <!-- Animated gradient overlay -->
-    <div
-      class="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-purple-500/20"
-    ></div>
-  </div>
+<div class="relative min-h-screen overflow-hidden bg-blue-950">
 
   {#if session}
     <!-- Header -->
